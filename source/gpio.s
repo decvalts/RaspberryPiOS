@@ -30,5 +30,24 @@ functionLoop$:
 ;This would be the same as GPIO Controller Address + 4 × (GPIO Pin Number ÷ 10)
 
 
+add r2, r2,lsl #1   ;multiplication by 3 (in disguise...)
+lsl r1,r2           ;shift function value left by r2 no of places
+str r1,[r0]         ;store the new value
+pop {pc}            ;copies the value that was in lr into pc
+
+.globl SetGpio
+SetGpio:
+pinNum .req r0     ;gives an alias to ro 'pinNum'
+pinVal .req r1
+
+;Fucntion for checking we are given a valid pin number
+cmp pinNum,#53
+movhi pc,lr
+push {lr}
+mov r2,pinNum
+.unreq pinNum
+pinNum .req r2
+bl GetGpioAddress
+gpioAddr .req r0
 
 
