@@ -50,4 +50,4 @@ pinNum .req r2
 bl GetGpioAddress
 gpioAddr .req r0
 
-
+; a test comment
