@@ -42,12 +42,30 @@ pinVal .req r1
 
 ;Fucntion for checking we are given a valid pin number
 cmp pinNum,#53
-movhi pc,lr
+movhi pc,lr        ;preserve lr by pushing it to the stack
 push {lr}
-mov r2,pinNum
-.unreq pinNum
+mov r2,pinNum      ;move pin number to r2
+.unreq pinNum      ;this removes the alias from r0
 pinNum .req r2
 bl GetGpioAddress
 gpioAddr .req r0
 
-; a test comment
+;CHECK WHICH SET OF 4 BYTES WE ARE IN
+pinBank .req r3
+lsr pinBank,pinNum,#5
+lsl pinBank,#2
+add gpioAddr,pinBank   ;gpioAddr will be 20200000_16 if pin 0-31
+                       ; or 20200004_16 if pin is 32-53
+.unreq pinBank
+
+;GENERATE A NUMBER WITH THE CORRECT BIT SET
+and pinNum,#31     ;boolean compare
+setBit .req r3
+mov setBit,pinNum
+.unreq pinNum
+
+
+
+
+
+
