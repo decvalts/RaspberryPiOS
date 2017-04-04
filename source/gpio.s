@@ -61,8 +61,36 @@ add gpioAddr,pinBank   ;gpioAddr will be 20200000_16 if pin 0-31
 ;GENERATE A NUMBER WITH THE CORRECT BIT SET
 and pinNum,#31     ;boolean compare
 setBit .req r3
-mov setBit,pinNum
+mov setBit,#1
+lsl setBit,pinNum
 .unreq pinNum
+
+;For the GPIO controller to to turn a pin on or off, it must 
+;have a number with a bit set in the place of the remainder
+;of the given pin's number divided by 32. To set pin 16, a
+; number is needed with the 16th bit as 1. To set pin 45, a 
+;number is needed with the 13th bit as 1, since 45/32 is 1
+; remainder 13.
+
+;CODE TO END THE METHOD
+teq pinVal,#0                ;checks if the pinVal == 0
+.unreq pinVal
+streq setBit,[gpioAddr,#40]
+strne setBit,[gpioAddr,#28]
+.unreq setBit
+.unreq gpioAddr
+pop {pc}
+
+;We turn the pin off if the value is zero and on if nonzero
+;teq (test equal to) is similar to cmp (compare) but does not
+;not work out which number is bigger. 
+
+;If pinVal is 0, we store the setBit at 40 away from the GPIO
+;address, which turns the pin off. Otherwise it is stored at
+;28 which turns the pin on. At the end we can return by popping
+; pc, which sets it to the value that we stored when we pushed
+; the link register.
+
 
 
 
